@@ -35,21 +35,23 @@ jobs:
     - name: Run tests
       run: |
         export PYTHONPATH=$PYTHONPATH:$GITHUB_WORKSPACE
-        pytest tests/ --junitxml=test-results-${{ matrix.python-version }}.xml --html=test-report-${{ matrix.python-version }}.html --self-contained-html
+        pytest tests/ \
+          --junitxml=test-results-${{ matrix.python-version }}.xml \
+          --html=test-report-${{ matrix.python-version }}.html \
+          --self-contained-html
 
-    - name: Upload HTML test report
+    - name: Prepare artifacts directory
+      run: |
+        # 创建唯一的目录结构
+        mkdir -p artifacts/${{ matrix.python-version }}
+        mv test-report-${{ matrix.python-version }}.html artifacts/${{ matrix.python-version }}/
+        mv test-results-${{ matrix.python-version }}.xml artifacts/${{ matrix.python-version }}/
+
+    - name: Upload test artifacts
       uses: actions/upload-artifact@v4
       with:
-        # 添加运行ID确保唯一性
-        name: test-report-${{ matrix.python-version }}-${{ github.run_id }}
-        path: test-report-${{ matrix.python-version }}.html
-
-    - name: Upload JUnit test report
-      uses: actions/upload-artifact@v4
-      with:
-        # 添加运行ID确保唯一性
-        name: test-results-${{ matrix.python-version }}-${{ github.run_id }}
-        path: test-results-${{ matrix.python-version }}.xml
+        name: test-artifacts
+        path: artifacts/${{ matrix.python-version }}
 
     - name: Build package
       run: |

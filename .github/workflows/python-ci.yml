@@ -40,18 +40,20 @@ jobs:
           --html=test-report-${{ matrix.python-version }}.html \
           --self-contained-html
 
-    - name: Prepare artifacts directory
+    - name: Generate unique artifact name
+      id: artifact-name
       run: |
-        # 创建唯一的目录结构
-        mkdir -p artifacts/${{ matrix.python-version }}
-        mv test-report-${{ matrix.python-version }}.html artifacts/${{ matrix.python-version }}/
-        mv test-results-${{ matrix.python-version }}.xml artifacts/${{ matrix.python-version }}/
+        # 生成包含运行ID、作业ID和Python版本的唯一名称
+        UNIQUE_NAME="test-reports-${{ github.run_id }}-${{ github.job }}-${{ matrix.python-version }}"
+        echo "unique_name=$UNIQUE_NAME" >> $GITHUB_OUTPUT
 
     - name: Upload test artifacts
       uses: actions/upload-artifact@v4
       with:
-        name: test-artifacts
-        path: artifacts/${{ matrix.python-version }}
+        name: ${{ steps.artifact-name.outputs.unique_name }}
+        path: |
+          test-report-${{ matrix.python-version }}.html
+          test-results-${{ matrix.python-version }}.xml
 
     - name: Build package
       run: |
@@ -60,5 +62,5 @@ jobs:
     - name: Upload package artifacts
       uses: actions/upload-artifact@v4
       with:
-        name: python-package
+        name: python-package-${{ github.run_id }}
         path: dist/*

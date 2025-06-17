@@ -1,5 +1,12 @@
 import pytest
-from ..src.calculator import add, subtract, multiply, divide
+import sys
+import os
+
+# 添加项目根目录到 Python 路径
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
+# 现在可以直接导入
+from src.calculator import add, subtract, multiply, divide
 
 def test_add():
     """测试加法功能"""
